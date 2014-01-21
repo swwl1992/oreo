@@ -1,0 +1,9 @@
+# ignore all backup files
+*.backup
+
+# ignore generated files
+.depend
+_client/
+_deps/
+_server/
+local/
