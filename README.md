@@ -8,19 +8,19 @@ is a module to allow Ocaml programmers to code in reactive style.
 This project illustrates some examples of
 how reactive programming can be used in web development.
 
-It also contains a light weight framework written for [Ocsigen](http://ocsigen.org)
-framework to write multimedia applications.
-Ocsigen framework is a web framework written in Ocaml and for Ocaml programmers to
+[Ocsigen](http://ocsigen.org) framework is a web framework written in Ocaml and for Ocaml programmers to
 develop web applications.
 
+It also contains a light-weight framework written for Ocsigen framework to write multimedia applications.
+
 ### Dependencies
-* Ocaml release 4.0.1 or above
-* [Opam](http://opam.ocaml.org/) - Ocaml Package Manager
-* [React](http://opam.ocamlpro.com/pkg/react.0.9.4.html) (installation from Opam preferred)
-* [Ocsigen framework](http://ocsigen.org/) release 3.0 or above (installation from Opam preferred)
+* Ocaml release 4.00.1 or above
+* [Opam](http://opam.ocaml.org/) (Ocaml Package Manager)
+* [React](http://opam.ocamlpro.com/pkg/react.0.9.4.html) (installation from Opam)
+* [Ocsigen framework](http://ocsigen.org/) release 3.0 or above (installation from Opam)
 
 ### API
-`interface.ml` provides type-safe interface for media elements which Ocsigen framework is lacking right now.
+**interface.ml** provides type-safe interface for media elements which Ocsigen framework is lacking right now.
 
 `mediaElement` is a generic media element in DOM.
 ```ocaml
@@ -88,9 +88,10 @@ Create `videoElement` from document object.
 val createVideo: document Js.t -> videoElement Js.t
 ```
 
-`To_dom` converts HTML5 elements to Javascript DOM elements (Dom_html.element).
+`To_dom` function converts HTML5 elements to Javascript DOM elements (Dom_html.element).
 One conversion function per source type (stressed by the of_ prefix).
-It is written in the way similar to Eliom [To_dom](http://ocsigen.org/eliom/api/client/Eliom_content.Html5.To_dom) API's.
+It is written in the way similar to standard Eliom
+[To_dom](http://ocsigen.org/eliom/api/client/Eliom_content.Html5.To_dom) API's.
 
 ```ocaml
 module To_dom : sig ... end
