@@ -80,17 +80,15 @@ module Sub = struct
 
     (* edit the text *)
     (* input: vid_elt new_text *)
-    let edit_sub_text vid_elt new_text =
-        let rec find_text vid_elt sub_lst new_text =
-            match sub_lst with
+    let edit_sub_text (st, et, new_text) =
+        let rec find_text st et new_text = function
             | [] -> []
             | h::t ->
-                let curr_t = Js.to_float vid_elt##currentTime in
                 let _start_t = h.start_t in
                 let _end_t = h.end_t in
                 let _x = h.x in
                 let _y = h.y in
-                if _start_t <= curr_t && curr_t <= _end_t then
+                if _start_t = st && _end_t = et then
                     let new_sub = {
                         start_t = _start_t;
                         end_t = _end_t;
@@ -98,11 +96,11 @@ module Sub = struct
                         x = _x;
                         y = _y
                     } in
-                    new_sub::(find_text vid_elt t new_text)
+                    new_sub::(find_text st et new_text t)
                 else
-                    h::(find_text vid_elt t new_text)
+                    h::(find_text st et new_text t)
         in
-        sub_lst := find_text vid_elt !sub_lst new_text
+        sub_lst := find_text st et new_text !sub_lst
 
 
     (* cycle through all the subtitles and show the correct one *)

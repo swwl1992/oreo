@@ -21,7 +21,7 @@ let media_init vid =
     let reset_btn_elt = createButton document in
     let src_input_elt = createInput document in
     let sub_text, send_sub_text = E.create () in
-    let _ = E.map (edit_sub_text vid_elt) sub_text in
+    let _ = E.map edit_sub_text sub_text in
 
     (* initialization *)
     reset_btn_elt##innerHTML <- Js.string "Reset Source";
@@ -56,8 +56,15 @@ let media_init vid =
     in
 
     let check_sub txt_textarea_elt () =
-        let text = Js.to_string txt_textarea_elt##value in
-        send_sub_text text
+        try
+            let start_t = float_of_string
+                (Js.to_string st_input_elt##value) in
+            let end_t = float_of_string
+                (Js.to_string et_input_elt##value) in
+            let text = Js.to_string txt_textarea_elt##value in
+            send_sub_text (start_t, end_t, text)
+        with _ ->
+            ()
     in
 
     let _ = Dom_html.window##setInterval(Js.wrap_callback
