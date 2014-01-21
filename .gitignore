@@ -1,7 +1,13 @@
-# ignore all backup files
+# backup files
 *.backup
 
-# ignore generated files
+# annotation files
+*.annot
+
+# swap files
+*.swp
+
+# generated files
 .depend
 _client/
 _deps/
