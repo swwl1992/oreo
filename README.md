@@ -105,6 +105,69 @@ val of_audio: Html5_types.audio -> audioElement Js.t
 val of_audio: Html5_types.audio -> audioElement Js.t
 ```
 
+**subtitle.ml** contains functions that help generattion and edition of subtitles for a video.
+It is not written in reactive style to ease its portability.
+```ocaml
+module Sub struct ... end
+```
+`appendWithWrapper` wraps an element with a `div` element and append it to the second parameter.
+```ocaml
+val appendWithWrapper: #Dom.node Js.t -> #Dom.node Js.t -> unit
+```
+`createSubDiv` returns a div for subtitle display.
+It automatically set the width and height according to the video.
+```ocaml
+val createDiv: Interface.videoElement Js.t -> Dom_html.divElement Js.t
+```
+
+`appendEditor` creates an editor for the video which includes start time, end time, textbox and a button.
+```ocaml
+val appendEditor #Dom.node Js.t -> Dom_html.inputElement Js.t * Dom_html.inputElement Js.t *
+Dom_html.textAreaElement Js.t * Dom_html.buttonElement Js.t
+```
+
+`add_sub` add a subtitle to the subtitle list.
+```ocaml
+val add_sub: float -> float -> string -> unit
+```
+
+`edit_sub_text` edit the text of an existing subtitle inside the subtitle list.
+```ocaml
+val edit_sub_text: float * float * string -> unit
+```
+
+`start_sub` initiates a process to continuously display subtitles on the video.
+The second parameter is the wrapper element of the video (necessary).
+You will need this function when you create the very first subtitle of a video.
+The subsequent addition and modification of subtitles will no longer require this function.
+```ocaml
+val start_sub Interface.videoElement Js.t -> #Dom.node Js.t -> unit
+```
+
+`remove_sub` removes the subtitle container, deactivates the display process and clear the entire subtitle list.
+Use it ONLY when necessary, for example, resetting to a new video.
+The first parameter is the wrapper element of the video (necessary).
+```ocaml
+val: remove_sub: #Dom.node Js.t -> unit
+```
+
 ### Execution
+Test your application by compiling it and running ocsigenserver locally
+```
+$ make test.byte (or test.opt)
+```
+
+Deploy your project on your system
+```
+$ sudo make install (or install.byte or install.opt)
+```
+
+Run the server on the deployed project
+```
+$ sudo make run.byte (or run.opt)
+```
 
 ### Use it for your own project
+
+**interface.ml** and **subtitle.ml** can be transferred and used for your own project.
+You are also welcome to folk this repo and contribute to it.
