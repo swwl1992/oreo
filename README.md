@@ -117,7 +117,7 @@ val appendWithWrapper: #Dom.node Js.t -> #Dom.node Js.t -> unit
 `createSubDiv` returns a div for subtitle display.
 It automatically set the width and height according to the video.
 ```ocaml
-val createDiv: Interface.videoElement Js.t -> Dom_html.divElement Js.t
+val createSubDiv: Interface.videoElement Js.t -> Dom_html.divElement Js.t
 ```
 
 `appendEditor` creates an editor for the video which includes start time, end time, textbox and a button.
@@ -127,11 +127,15 @@ Dom_html.textAreaElement Js.t * Dom_html.buttonElement Js.t
 ```
 
 `add_sub` add a subtitle to the subtitle list.
+The three inputs are start time, end time and text.
 ```ocaml
 val add_sub: float -> float -> string -> unit
 ```
 
 `edit_sub_text` edit the text of an existing subtitle inside the subtitle list.
+The three inputs are start time, end time and text.
+The text is modified when both start tiem and end time match with an existing subtitle entry,
+otherwise nothing will be performed.
 ```ocaml
 val edit_sub_text: float * float * string -> unit
 ```
@@ -148,7 +152,7 @@ val start_sub Interface.videoElement Js.t -> #Dom.node Js.t -> unit
 Use it ONLY when necessary, for example, resetting to a new video.
 The first parameter is the wrapper element of the video (necessary).
 ```ocaml
-val: remove_sub: #Dom.node Js.t -> unit
+val remove_sub: #Dom.node Js.t -> unit
 ```
 
 ### Execution
