@@ -102,6 +102,24 @@ module Sub = struct
         in
         sub_lst := find_text st et new_text !sub_lst
 
+    (* remove a subtitle *)
+    let remove_sub st et =
+        let rec remove_elt st et = function
+        | [] -> []
+        | h::t ->
+            let _start_t = h.start_t in
+            let _end_t = h.end_t in
+            if _start_t = st && _end_t = et then
+                remove_elt st et t
+            else
+                h::(remove_elt st et t)
+        in
+        sub_lst := remove_elt st et !sub_lst
+
+    (* clear all the subtitles *)
+    (* but the events are preserved *)
+    let clear_sub_lst () =
+        sub_lst := []
 
     (* cycle through all the subtitles and show the correct one *)
     let start_cycle_sub vid_elt div () =
