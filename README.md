@@ -126,18 +126,30 @@ val appendEditor #Dom.node Js.t -> Dom_html.inputElement Js.t * Dom_html.inputEl
 Dom_html.textAreaElement Js.t * Dom_html.buttonElement Js.t
 ```
 
-`add_sub` add a subtitle to the subtitle list.
+`add_sub` adds a subtitle to the subtitle list.
 The three inputs are start time, end time and text.
 ```ocaml
 val add_sub: float -> float -> string -> unit
 ```
 
-`edit_sub_text` edit the text of an existing subtitle inside the subtitle list.
+`edit_sub_text` edits the text of an existing subtitle inside the subtitle list.
 The three inputs are start time, end time and text.
 The text is modified when both start tiem and end time match with an existing subtitle entry,
 otherwise nothing will be performed.
 ```ocaml
 val edit_sub_text: float * float * string -> unit
+```
+`remove_sub` removes a subtitle from the subtitle list.
+The first two parameters are start time and end time.
+The subtitle whose start time and end time both match the parameters will be removed.
+```ocaml
+val remove_sub: float -> float -> unit
+```
+
+`clear_sub_lst` clears out the entire list of subtitles without stopping the display event.
+After invoking this function, you may still add subtitle and it will be displayed.
+```ocaml
+val clear_sub_lst: unit -> unit
 ```
 
 `start_sub` initiates a process to continuously display subtitles on the video.
