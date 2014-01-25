@@ -19,6 +19,7 @@ let simple_example source_input reactive_input =
 let media_init vid =
     let vid_elt = Interface.To_dom.of_video vid in
     let reset_btn_elt = createButton document in
+    let export_btn_elt = createButton document in
     let src_input_elt = createInput document in
     let sub_text, send_sub_text = E.create () in
     let _ = E.map edit_sub_text sub_text in
@@ -49,10 +50,14 @@ let media_init vid =
         let text = Js.to_string txt_textarea_elt##value in
         match !sub_lst with
         | [] ->
-            add_sub start_t end_t text;
-            start_sub vid_elt div
+            if (add_sub start_t end_t text) then
+                start_sub vid_elt div
+            else
+                Dom_html.window##alert(Js.string "Conflict")
         | h::t ->
-            add_sub start_t end_t text;
+            if (add_sub start_t end_t text) then ()
+            else
+                Dom_html.window##alert(Js.string "Conflict")
     in
 
     let check_sub txt_textarea_elt () =
@@ -81,6 +86,9 @@ let media_init vid =
             Lwt.return ());
         clicks add_btn_elt
             (fun _ _ -> add_subtitle vid_elt div;
+            Lwt.return ());
+        clicks export_btn_elt
+            (fun _ _ -> Firebug.console##log(parse_sub ());
             Lwt.return ());
         ]
     )

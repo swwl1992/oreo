@@ -49,8 +49,8 @@ let main_page =
         h1 [pcdata "Oreo"];
         p [pcdata "Ocsigen Reactive Programming applications."];
         ul [
-            li [a ~service:simple_service [pcdata "Simple example"] ()];
-            li [a ~service:media_service [pcdata "Reactive media"] ()]
+           li [a ~service:simple_service [pcdata "Simple example"] ()];
+           li [a ~service:media_service [pcdata "Reactive media"] ()]
         ]
     ]
 

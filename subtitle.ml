@@ -66,6 +66,24 @@ module Sub = struct
 
     (* subtitle edition functions *)
 
+    (* detect if there is coflicts between subtitles *)
+    let is_conflict sub =
+        let rec detect_conflict sub = function
+            | [] -> false
+            | h::t ->
+                let start_t = sub.start_t in
+                let end_t = sub.start_t in
+                let e_start_t = h.start_t in
+                let e_end_t = h.end_t in
+                if (start_t >= e_start_t && start_t < e_end_t) ||
+                   (e_start_t < end_t && end_t <= e_end_t) ||
+                   (e_start_t >= start_t && e_end_t <= end_t) then
+                    true
+                else
+                    detect_conflict sub t
+        in
+        detect_conflict sub !sub_lst
+
     (* add a new subtitle and append to the list *)
     (* input: start_t end_t text *)
     let add_sub st et txt =
@@ -76,7 +94,12 @@ module Sub = struct
             x = 0;
             y = 0;
         } in
-        sub_lst := (List.append !sub_lst [new_sub])
+        if (is_conflict new_sub) then false
+        else
+            begin
+                sub_lst := (List.append !sub_lst [new_sub]);
+                true
+            end
 
     (* edit the text *)
     (* input: vid_elt new_text *)
@@ -141,8 +164,23 @@ module Sub = struct
         id := Dom_html.window##setInterval(Js.wrap_callback
                 (start_cycle_sub vid_elt !sub_div), 50.)
 
+    (* clear all the subtitles and stop the display *)
     let remove_sub div =
         Dom_html.window##clearInterval(!id);
         Dom.removeChild div !sub_div;
         sub_lst := []
+
+    (* parse sub_list into WEBVTT format *)
+    let parse_sub () =
+        let hdr = "WEBVTT" in
+        let arrow = "-->" in
+        let result = ref (hdr^"\n") in
+        let pack_sub result sub =
+            let start_t_str = Printf.sprintf "%.3f" sub.start_t in
+            let end_t_str = Printf.sprintf "%.3f" sub.end_t in
+            result := !result^start_t_str^" "^arrow^" "^end_t_str^"\n";
+            result := !result^sub.text^"\n"
+        in
+        List.iter (pack_sub result) !sub_lst;
+        !result
 end
