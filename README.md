@@ -126,10 +126,19 @@ val appendEditor #Dom.node Js.t -> Dom_html.inputElement Js.t * Dom_html.inputEl
 Dom_html.textAreaElement Js.t * Dom_html.buttonElement Js.t
 ```
 
+`is_conflict` returns `false` if the input `sub` object overlaps with at least one existing subtitle.
+Otherwise, it returns `true`.
+```ocaml
+val is_conflict: Sublist.Sub t -> bool
+```
+
 `add_sub` adds a subtitle to the subtitle list.
 The three inputs are start time, end time and text.
+The function will return `false` if the addition fails,
+which implies an overlap between two subtitles.
+The success of addition will return `true`.
 ```ocaml
-val add_sub: float -> float -> string -> unit
+val add_sub: float -> float -> string -> bool
 ```
 
 `edit_sub_text` edits the text of an existing subtitle inside the subtitle list.
@@ -165,6 +174,12 @@ Use it ONLY when necessary, for example, resetting to a new video.
 The first parameter is the wrapper element of the video (necessary).
 ```ocaml
 val remove_sub: #Dom.node Js.t -> unit
+```
+
+`parse_sub` parses the `sub_lst` into a WEBVTT formatted string,
+so that it can be transferred or saved.
+```ocaml
+val parse_sub: unit -> string
 ```
 
 ### Execution
