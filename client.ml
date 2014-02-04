@@ -3,6 +3,7 @@ open Dom_html
 open Eliom_content.Html5
 open React
 open Subtitle.Sub
+open Subtitle.Cap
 
 let simple_example source_input reactive_input =
     let src_input_elt = To_dom.of_input source_input in
@@ -35,6 +36,28 @@ let media_init vid =
     Dom.appendChild document##body div;
     let st_input_elt, et_input_elt, txt_textarea_elt, add_btn_elt =
         appendEditor div in
+
+    (* caption initialization *)
+    let cap1 = {
+        start_t = 1.;
+        end_t = 4.;
+        text = "A seagull";
+        left = 0;
+        top = 0;
+        opacity = 0.0;
+        effect = FadeIn;
+    } in
+    let cap2 = {
+        start_t = 2.;
+        end_t = 5.;
+        text = "Jumps into water";
+        left = 0;
+        top = 30;
+        opacity = 1.0;
+        effect = FadeOut;
+    } in
+    cap_lst := [cap1; cap2];
+    start_cap vid_elt div;
 
     (* modifying methods *)
     let reset_vid_src vid src =

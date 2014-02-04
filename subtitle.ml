@@ -7,12 +7,10 @@ module Sub = struct
         start_t : float;
         end_t : float;
         text : string;
-        x: int;
-        y: int;
     }
 
     let sub_lst = ref ([] : t list)
-    let id = ref (window##setInterval(Js.wrap_callback
+    let sub_id = ref (window##setInterval(Js.wrap_callback
         (fun () -> ()), 999.))
     let sub_div = ref (createDiv document)
 
@@ -91,8 +89,6 @@ module Sub = struct
             start_t = st;
             end_t = et;
             text = txt;
-            x = 0;
-            y = 0;
         } in
         if (is_conflict new_sub) then false
         else
@@ -109,15 +105,11 @@ module Sub = struct
             | h::t ->
                 let _start_t = h.start_t in
                 let _end_t = h.end_t in
-                let _x = h.x in
-                let _y = h.y in
                 if _start_t = st && _end_t = et then
                     let new_sub = {
                         start_t = _start_t;
                         end_t = _end_t;
                         text = new_text;
-                        x = _x;
-                        y = _y
                     } in
                     new_sub::(find_text st et new_text t)
                 else
@@ -161,12 +153,12 @@ module Sub = struct
     let start_sub vid_elt div =
         sub_div := createSubDiv vid_elt;
         Dom.insertBefore div !sub_div (Js.some vid_elt);
-        id := Dom_html.window##setInterval(Js.wrap_callback
+        sub_id := Dom_html.window##setInterval(Js.wrap_callback
                 (start_cycle_sub vid_elt !sub_div), 50.)
 
     (* clear all the subtitles and stop the display *)
     let remove_sub div =
-        Dom_html.window##clearInterval(!id);
+        Dom_html.window##clearInterval(!sub_id);
         Dom.removeChild div !sub_div;
         sub_lst := []
 
@@ -183,4 +175,89 @@ module Sub = struct
         in
         List.iter (pack_sub result) !sub_lst;
         !result
+end
+
+(* Caption module *)
+module Cap = struct
+    type eff =
+        Show |
+        FadeIn |
+        FadeOut |
+        Blink |
+        ScrollLeft |
+        ScrollRight
+
+    type t = {
+        start_t: float;
+        end_t: float;
+        text: string;
+        left: int;
+        top: int;
+        opacity: float;
+        effect: eff;
+    }
+
+    let cap_lst = ref ([] : t list)
+    let cap_id = ref (window##setInterval(Js.wrap_callback
+        (fun () -> ()), 999.))
+    let cap_divs = ref ([] : divElement Js.t list)
+
+    (* create div to hold captions *)
+    let createCapDiv vid_elt cap =
+        let cap_div = createDiv document in
+        cap_div##style##position <- Js.string "relative";
+        cap_div##style##fontWeight <- Js.string "bold";
+        cap_div##style##color <- Js.string "white";
+        cap_div##style##height <- Js.string "0px";
+        let left_str = string_of_int cap.left in
+        let top_str = string_of_int cap.top in
+        let opac_str = string_of_float cap.opacity in
+        cap_div##style##left <- Js.string (left_str^"px");
+        cap_div##style##top <- Js.string (top_str^"px");
+        cap_div##style##opacity <- Js.def (Js.string "0.0");
+        cap_div
+
+    (* change opacity of a div: increase/decrease *)
+    let fadeEffect div text opac =
+        div##innerHTML <- Js.string text;
+        div##style##opacity <- Js.def
+            (Js.string (string_of_float opac))
+
+    let displayCap vid_elt cap_div cap =
+        let start_t = cap.start_t in
+        let end_t = cap.end_t in
+        let text = cap.text in
+        let left = cap.left in
+        let top = cap.top in
+        let opacity = cap.opacity in
+        let effect = cap.effect in
+        let curr_t = Js.to_float vid_elt##currentTime in
+        if start_t <= curr_t && curr_t <= end_t then
+            begin
+                match effect with
+                | FadeIn ->
+                    let dur = end_t -. start_t in
+                    let opac = (curr_t -. start_t) /. dur in
+                    fadeEffect cap_div text opac 
+                | FadeOut ->
+                    let dur = end_t -. start_t in
+                    let opac = 1. -. (curr_t -. start_t) /. dur in
+                    fadeEffect cap_div text opac 
+                | _ ->
+                    cap_div##innerHTML <- Js.string text
+            end
+        else
+            cap_div##innerHTML <- Js.string "" 
+
+    let startCycleCap vid_elt () =
+        List.iter2 (displayCap vid_elt) !cap_divs !cap_lst
+
+    (* make the caption appear on the video element *)
+    let start_cap vid_elt div =
+        cap_divs := List.map (createCapDiv vid_elt) !cap_lst;
+        let insertCapDiv cap_div =
+            Dom.insertBefore div cap_div (Js.some vid_elt) in
+        List.iter insertCapDiv !cap_divs;
+        cap_id := Dom_html.window##setInterval(Js.wrap_callback
+                (startCycleCap vid_elt), 50.)
 end
