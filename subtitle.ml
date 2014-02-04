@@ -214,7 +214,7 @@ module Cap = struct
         let opac_str = string_of_float cap.opacity in
         cap_div##style##left <- Js.string (left_str^"px");
         cap_div##style##top <- Js.string (top_str^"px");
-        cap_div##style##opacity <- Js.def (Js.string "0.0");
+        cap_div##style##opacity <- Js.def (Js.string opac_str);
         cap_div
 
     (* change opacity of a div: increase/decrease *)
