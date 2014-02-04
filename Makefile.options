@@ -8,7 +8,7 @@ PROJECT_NAME := oreo
 # Source files for the server
 SERVER_FILES := $(wildcard *.eliomi *.eliom server.ml)
 # Source files for the client
-CLIENT_FILES := $(wildcard *.eliomi *.eliom client.ml subtitle.ml interface.ml)
+CLIENT_FILES := $(wildcard *.eliomi *.eliom client.ml effect.ml interface.ml)
 
 # OCamlfind packages for the server
 SERVER_PACKAGES :=

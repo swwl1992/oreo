@@ -253,7 +253,7 @@ module Cap = struct
         List.iter2 (displayCap vid_elt) !cap_divs !cap_lst
 
     (* make the caption appear on the video element *)
-    let start_cap vid_elt div =
+    let startCap vid_elt div =
         cap_divs := List.map (createCapDiv vid_elt) !cap_lst;
         let insertCapDiv cap_div =
             Dom.insertBefore div cap_div (Js.some vid_elt) in

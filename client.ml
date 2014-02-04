@@ -2,8 +2,8 @@ open Lwt
 open Dom_html
 open Eliom_content.Html5
 open React
-open Subtitle.Sub
-open Subtitle.Cap
+open Effect.Sub
+open Effect.Cap
 
 let simple_example source_input reactive_input =
     let src_input_elt = To_dom.of_input source_input in
@@ -57,7 +57,7 @@ let media_init vid =
         effect = FadeOut;
     } in
     cap_lst := [cap1; cap2];
-    start_cap vid_elt div;
+    startCap vid_elt div;
 
     (* modifying methods *)
     let reset_vid_src vid src =
