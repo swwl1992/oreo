@@ -182,6 +182,21 @@ so that it can be transferred or saved.
 val parse_sub: unit -> string
 ```
 
+```ocaml
+module Cap struct ... end
+```
+`Cap` module contains all the methods that build and execute captions.
+
+```ocaml
+val createCapDiv: Interface.videoElement Js.t -> t -> Dom_html.divElement Js.t 
+```
+`createCapDiv` creates a div to hold the caption based on the parameters inside the caption element.
+
+```ocaml
+val startCap: Interface.videoElement Js.t -> Dom_html.node Js.t -> unit
+```
+`startCap` initiates all the caption and the display of them.
+
 ### Execution
 Test your application by compiling it and running ocsigenserver locally
 ```
