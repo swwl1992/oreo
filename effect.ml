@@ -229,12 +229,13 @@ module Cap = struct
         let text = cap.text in
         let left = cap.left in
         let top = cap.top in
-        let opacity = cap.opacity in
         let effect = cap.effect in
         let curr_t = Js.to_float vid_elt##currentTime in
         if start_t <= curr_t && curr_t <= end_t then
             begin
                 match effect with
+                | Show ->
+                    cap_div##innerHTML <- Js.string text
                 | FadeIn ->
                     let dur = end_t -. start_t in
                     let opac = (curr_t -. start_t) /. dur in
@@ -242,12 +243,12 @@ module Cap = struct
                 | FadeOut ->
                     let dur = end_t -. start_t in
                     let opac = 1. -. (curr_t -. start_t) /. dur in
-                    fadeEffect cap_div text opac 
+                    fadeEffect cap_div text opac
                 | _ ->
                     cap_div##innerHTML <- Js.string text
             end
         else
-            cap_div##innerHTML <- Js.string "" 
+            cap_div##innerHTML <- Js.string ""
 
     let startCycleCap vid_elt () =
         List.iter2 (displayCap vid_elt) !cap_divs !cap_lst
@@ -260,4 +261,19 @@ module Cap = struct
         List.iter insertCapDiv !cap_divs;
         cap_id := Dom_html.window##setInterval(Js.wrap_callback
                 (startCycleCap vid_elt), 50.)
+end
+
+module Mcq = struct
+    type t = {
+        start_t: float;
+        question: string;
+        options: string list;
+        ans: int list;
+        explanation: string;
+    }
+
+    let mcq_lst = ref ([] : t list)
+    let opt_lst = ref ([]: inputElement Js.t list)
+    let qsn_divs = ref ([] : divElement Js.t list)
+
 end
