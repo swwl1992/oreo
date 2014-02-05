@@ -13,18 +13,18 @@ develop web applications.
 
 It also contains a light-weight framework written for Ocsigen framework to write multimedia applications.
 
-### Dependencies
+## Dependencies
 * Ocaml release 4.00.1 or above
 * [Opam](http://opam.ocaml.org/) (Ocaml Package Manager)
 * [React](http://opam.ocamlpro.com/pkg/react.0.9.4.html) (installation from Opam)
 * [Ocsigen framework](http://ocsigen.org/) release 3.0 or above (installation from Opam)
 
-### API
+## API
 
 * [interface.ml API](https://github.com/swwl1992/oreo/wiki/Interface-API)
-* [Subtitle.ml API](https://github.com/swwl1992/oreo/wiki/Subtitle-API)
+* [effect.ml API](https://github.com/swwl1992/oreo/wiki/Effect-API)
 
-### Execution
+## Execution
 Test your application by compiling it and running ocsigenserver locally
 ```
 $ make test.byte (or test.opt)
@@ -40,7 +40,7 @@ Run the server on the deployed project
 $ sudo make run.byte (or run.opt)
 ```
 
-### Use it for your own project
+## Use it for your own project
 
 **interface.ml** and **subtitle.ml** can be transferred and used for your own project.
 You are also welcome to folk this repo and contribute to it.
