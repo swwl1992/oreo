@@ -2,8 +2,10 @@ open Lwt
 open Dom_html
 open Eliom_content.Html5
 open React
+open Effect
 open Effect.Sub
 open Effect.Cap
+open Effect.Mcq
 
 let simple_example source_input reactive_input =
     let src_input_elt = To_dom.of_input source_input in
@@ -38,6 +40,7 @@ let media_init vid =
         appendEditor div in
 
     (* caption initialization *)
+    (*
     let cap1 = {
         start_t = 1.;
         end_t = 4.;
@@ -58,6 +61,19 @@ let media_init vid =
     } in
     cap_lst := [cap1; cap2];
     startCap vid_elt div;
+    *)
+    
+    (* mcq initiation *)
+    let mcq = {
+        start_t = 2.0;
+        question = "How many people are there in the world?";
+        options = ["5 billion"; "6 billion"; "8 billion"];
+        ans = 1;
+        attempted = false;
+        explanation = "N.A.";
+    } in
+    mcq_lst := [mcq];
+    startMcq vid_elt div;
 
     (* modifying methods *)
     let reset_vid_src vid src =

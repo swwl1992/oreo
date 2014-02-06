@@ -2,6 +2,12 @@ open Js
 open Dom_html
 open Interface
 
+(* helper functions *)
+let appendWithWrapper bdy elt =
+    let div = createDiv document in
+        Dom.appendChild div elt;
+        Dom.appendChild bdy div
+
 module Sub = struct
     type t = {
         start_t : float;
@@ -13,12 +19,6 @@ module Sub = struct
     let sub_id = ref (window##setInterval(Js.wrap_callback
         (fun () -> ()), 999.))
     let sub_div = ref (createDiv document)
-
-    (* helper functions *)
-    let appendWithWrapper bdy elt =
-        let div = createDiv document in
-            Dom.appendChild div elt;
-            Dom.appendChild bdy div
 
     (* creaet a div element to hold the text *)
     (* the div will float right above the video *)
@@ -203,7 +203,7 @@ module Cap = struct
     let cap_divs = ref ([] : divElement Js.t list)
 
     (* create div to hold captions *)
-    let createCapDiv vid_elt cap =
+    let createCapDiv cap =
         let cap_div = createDiv document in
         cap_div##style##position <- Js.string "relative";
         cap_div##style##fontWeight <- Js.string "bold";
@@ -255,7 +255,7 @@ module Cap = struct
 
     (* make the caption appear on the video element *)
     let startCap vid_elt div =
-        cap_divs := List.map (createCapDiv vid_elt) !cap_lst;
+        cap_divs := List.map createCapDiv !cap_lst;
         let insertCapDiv cap_div =
             Dom.insertBefore div cap_div (Js.some vid_elt) in
         List.iter insertCapDiv !cap_divs;
@@ -268,12 +268,112 @@ module Mcq = struct
         start_t: float;
         question: string;
         options: string list;
-        ans: int list;
+        ans: int; (* index of the option *)
+        attempted: bool;
         explanation: string;
     }
 
     let mcq_lst = ref ([] : t list)
-    let opt_lst = ref ([]: inputElement Js.t list)
     let qsn_divs = ref ([] : divElement Js.t list)
+    let mcq_id = ref (window##setInterval(Js.wrap_callback
+        (fun () -> ()), 999.))
 
+    let createOptElt opt =
+        let opt_elt = createOption document in
+        opt_elt##value <- Js.string opt;
+        opt_elt##innerHTML <- Js.string opt;
+        opt_elt
+
+    let initSelect mcq =
+        let opt_lst = List.map createOptElt mcq.options in
+        let sel_elt = createSelect document in
+        List.iter (Dom.appendChild sel_elt) opt_lst;
+        sel_elt
+
+    let createMcqDiv vid_elt mcq =
+        let sel_elt = initSelect mcq in
+        let mcq_div = createDiv document in
+        mcq_div##innerHTML <- Js.string mcq.question;
+        mcq_div##style##display <- Js.string "none";
+        mcq_div##style##position <- Js.string "relative";
+        mcq_div##style##fontWeight <- Js.string "bold";
+        mcq_div##style##top <- Js.string "0px";
+        mcq_div##style##height <- Js.string "0px";
+        appendWithWrapper mcq_div sel_elt;
+        let submit_btn = createButton document in
+        let expln_btn = createButton document in
+        let ans_p = createP document in
+        submit_btn##innerHTML <- Js.string "Submit";
+        expln_btn##innerHTML <- Js.string "Show Explanation";
+        Dom.appendChild mcq_div submit_btn;
+        Dom.appendChild mcq_div expln_btn;
+        Dom.appendChild mcq_div ans_p;
+        let submitAns node =
+            let info =
+            if sel_elt##selectedIndex = mcq.ans
+            then "Corrected!" else "Wrong." in
+            node##innerHTML <- Js.string info;
+            let rec replaceMcq mcq = function
+            | [] -> []
+            | hd::tl ->
+                if hd.start_t = mcq.start_t then
+                    let new_mcq = {
+                        start_t = hd.start_t;
+                        question = hd.question;
+                        options = hd.options;
+                        ans = hd.ans;
+                        attempted = true;
+                        explanation = hd.explanation;
+                    } in
+                    new_mcq::(replaceMcq mcq tl)
+                else
+                    hd::(replaceMcq mcq tl)
+            in
+            let _ = window##setTimeout(Js.wrap_callback
+            (fun () ->
+                begin
+                    mcq_lst := replaceMcq mcq !mcq_lst;
+                    vid_elt##play()
+                end), 5000.)
+            in ()
+        in
+        let showExp node mcq = 
+            node##innerHTML <- Js.string mcq.explanation
+        in
+        Lwt.async
+        (fun () ->
+            let open Lwt_js_events in
+            Lwt.pick [
+            clicks submit_btn
+                (fun _ _ -> submitAns ans_p;
+                Lwt.return ());
+            clicks expln_btn 
+                (fun _ _ -> showExp ans_p mcq;
+                Lwt.return ());
+            ]
+        );
+        mcq_div
+
+    let displayMcq vid_elt mcq_div mcq =
+        let attempted = mcq.attempted in
+        let start_t = mcq.start_t in
+        let end_t = start_t +. 1.0 in
+        let curr_t = Js.to_float vid_elt##currentTime in
+        if start_t <= curr_t && curr_t <= end_t && attempted = false
+        then
+            begin
+                vid_elt##pause();
+                mcq_div##style##display <- Js.string "initial"
+            end
+        else
+            mcq_div##style##display <- Js.string "none"
+
+    let startCycleMcq vid_elt () =
+        List.iter2 (displayMcq vid_elt) !qsn_divs !mcq_lst
+
+    let startMcq vid_elt div =
+        qsn_divs := List.map (createMcqDiv vid_elt) !mcq_lst;
+        List.iter (Dom.appendChild div) !qsn_divs;
+        mcq_id := Dom_html.window##setInterval(Js.wrap_callback
+                (startCycleMcq vid_elt), 50.)
 end
