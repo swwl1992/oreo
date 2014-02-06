@@ -23,6 +23,9 @@ It also contains a light-weight framework written for Ocsigen framework to write
 
 * [interface.ml API](https://github.com/swwl1992/oreo/wiki/Interface-API)
 * [effect.ml API](https://github.com/swwl1992/oreo/wiki/Effect-API)
+  * [Sub API](https://github.com/swwl1992/oreo/wiki/Sub-module-API) 
+  * [Cap API](https://github.com/swwl1992/oreo/wiki/Cap-module-API)
+  * Mcq API (coming soon)
 
 ## Execution
 Test your application by compiling it and running ocsigenserver locally
