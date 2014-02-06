@@ -8,6 +8,10 @@ let appendWithWrapper bdy elt =
         Dom.appendChild div elt;
         Dom.appendChild bdy div
 
+(* used as a reference *)
+let interv_id = window##setInterval(Js.wrap_callback
+        (fun () -> ()), 999.)
+
 module Sub = struct
     type t = {
         start_t : float;
@@ -16,8 +20,7 @@ module Sub = struct
     }
 
     let sub_lst = ref ([] : t list)
-    let sub_id = ref (window##setInterval(Js.wrap_callback
-        (fun () -> ()), 999.))
+    let sub_id = ref interv_id
     let sub_div = ref (createDiv document)
 
     (* creaet a div element to hold the text *)
@@ -198,8 +201,7 @@ module Cap = struct
     }
 
     let cap_lst = ref ([] : t list)
-    let cap_id = ref (window##setInterval(Js.wrap_callback
-        (fun () -> ()), 999.))
+    let cap_id = ref interv_id
     let cap_divs = ref ([] : divElement Js.t list)
 
     (* create div to hold captions *)
@@ -261,6 +263,11 @@ module Cap = struct
         List.iter insertCapDiv !cap_divs;
         cap_id := Dom_html.window##setInterval(Js.wrap_callback
                 (startCycleCap vid_elt), 50.)
+
+    let stopCap () =
+        Dom_html.window##clearInterval(!cap_id);
+        cap_divs := [];
+        cap_lst := []
 end
 
 module Mcq = struct
@@ -275,8 +282,7 @@ module Mcq = struct
 
     let mcq_lst = ref ([] : t list)
     let qsn_divs = ref ([] : divElement Js.t list)
-    let mcq_id = ref (window##setInterval(Js.wrap_callback
-        (fun () -> ()), 999.))
+    let mcq_id = ref interv_id
 
     let createOptElt opt =
         let opt_elt = createOption document in
@@ -313,6 +319,7 @@ module Mcq = struct
             if sel_elt##selectedIndex = mcq.ans
             then "Corrected!" else "Wrong." in
             node##innerHTML <- Js.string info;
+            (* replace the original mcq element from the list *)
             let rec replaceMcq mcq = function
             | [] -> []
             | hd::tl ->
@@ -376,4 +383,9 @@ module Mcq = struct
         List.iter (Dom.appendChild div) !qsn_divs;
         mcq_id := Dom_html.window##setInterval(Js.wrap_callback
                 (startCycleMcq vid_elt), 50.)
+
+    let stopMcq () =
+        Dom_html.window##clearInterval(!mcq_id);
+        qsn_divs := [];
+        mcq_lst := []
 end
