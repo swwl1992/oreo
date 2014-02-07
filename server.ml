@@ -27,6 +27,11 @@ let mcq_service =
     ~path:["mcq"]
     ~get_params:Eliom_parameter.unit ()
 
+let cmt_service =
+    Eliom_service.service
+    ~path:["comment"]
+    ~get_params:Eliom_parameter.unit ()
+
 (* elements *)
 let source_input = string_input
     ~a:[a_placeholder "Source text"]
@@ -63,7 +68,8 @@ let main_page =
         li [a ~service:simple_service [pcdata "Simple example"] ()];
         li [a ~service:subtitle_service [pcdata "Reactive subtitle"] ()];
         li [a ~service:caption_service [pcdata "Caption plug-in"] ()];
-        li [a ~service:mcq_service [pcdata "MCQ Gadget"] ()];
+        li [a ~service:mcq_service [pcdata "MCQ gadget"] ()];
+        li [a ~service:cmt_service [pcdata "Comment helper"] ()];
         ]
     ]
 
@@ -87,4 +93,9 @@ let caption_page =
 let mcq_page =
     skeleton [
         h1 [pcdata "MCQ Gadget"]
+    ]
+
+let cmt_page =
+    skeleton [
+        h1 [pcdata "Comment helper"]
     ]

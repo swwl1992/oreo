@@ -6,6 +6,7 @@ open Effect
 open Effect.Sub
 open Effect.Cap
 open Effect.Mcq
+open Effect.Cmt
 
 let simple_example source_input reactive_input =
     let src_input_elt = To_dom.of_input source_input in
@@ -138,3 +139,28 @@ let mcq_init vid =
     } in
     mcq_lst := [mcq];
     startMcq vid_elt div
+
+let comment_init vid =
+    let vid_elt = Interface.To_dom.of_video vid in
+    let div = createDiv document in
+    Dom.appendChild div vid_elt;
+    Dom.appendChild document##body div;
+    (* comments initialization *)
+    initStyle ();
+    let cmt1 = {
+        t_stamp = 1.00;
+        author = "Kelvin";
+        post_t = "2013 02 04";
+        cont = "Why?";
+        reply_to = None;
+    } in
+    let cmt2 = {
+        t_stamp = 5.00;
+        author = "John";
+        post_t = "2013 02 12";
+        cont = "Because...";
+        reply_to = Some "Kelvin";
+    } in
+    cmt_lst := [cmt1; cmt2];
+    let cmts_div = createCommentsDiv vid_elt in
+    Dom.appendChild div cmts_div

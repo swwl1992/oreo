@@ -12,6 +12,7 @@ let appendWithWrapper bdy elt =
 let interv_id = window##setInterval(Js.wrap_callback
         (fun () -> ()), 999.)
 
+(* Subtitle module *)
 module Sub = struct
     type t = {
         start_t : float;
@@ -66,7 +67,6 @@ module Sub = struct
             false
 
     (* subtitle edition functions *)
-
     (* detect if there is coflicts between subtitles *)
     let is_conflict sub =
         let rec detect_conflict sub = function
@@ -241,7 +241,7 @@ module Cap = struct
                 | FadeIn ->
                     let dur = end_t -. start_t in
                     let opac = (curr_t -. start_t) /. dur in
-                    fadeEffect cap_div text opac 
+                    fadeEffect cap_div text opac
                 | FadeOut ->
                     let dur = end_t -. start_t in
                     let opac = 1. -. (curr_t -. start_t) /. dur in
@@ -270,6 +270,7 @@ module Cap = struct
         cap_lst := []
 end
 
+(* Multiple choice question module *)
 module Mcq = struct
     type t = {
         start_t: float;
@@ -284,14 +285,14 @@ module Mcq = struct
     let qsn_divs = ref ([] : divElement Js.t list)
     let mcq_id = ref interv_id
 
-    let createOptElt opt =
+    let creaetOptElt opt =
         let opt_elt = createOption document in
         opt_elt##value <- Js.string opt;
         opt_elt##innerHTML <- Js.string opt;
         opt_elt
 
     let initSelect mcq =
-        let opt_lst = List.map createOptElt mcq.options in
+        let opt_lst = List.map creaetOptElt mcq.options in
         let sel_elt = createSelect document in
         List.iter (Dom.appendChild sel_elt) opt_lst;
         sel_elt
@@ -341,7 +342,7 @@ module Mcq = struct
                 end), 5000.)
             in ()
         in
-        let showExp node mcq = 
+        let showExp node mcq =
             node##innerHTML <- Js.string mcq.explanation
         in
         Lwt.async
@@ -351,7 +352,7 @@ module Mcq = struct
             clicks submit_btn
                 (fun _ _ -> submitAns ans_p;
                 Lwt.return ());
-            clicks expln_btn 
+            clicks expln_btn
                 (fun _ _ -> showExp ans_p mcq;
                 Lwt.return ());
             ]
@@ -385,4 +386,53 @@ module Mcq = struct
         Dom_html.window##clearInterval(!mcq_id);
         qsn_divs := [];
         mcq_lst := []
+end
+
+(* Comment module *)
+module Cmt = struct
+    type t = {
+        t_stamp: float;
+        author: string;
+        post_t: string;
+        cont: string;
+        reply_to: string option;
+    }
+
+    let cmt_lst = ref ([] : t list)
+    let cmt_divs = ref ([] : divElement Js.t list)
+
+    let initStyle () =
+        let sty_elt = createStyle document in
+        let cont = ".comment:hover{border-style:solid}" in
+        sty_elt##innerHTML <- Js.string cont;
+        Dom.appendChild document##head sty_elt
+
+    let createCmtDiv vid_elt cmt =
+        let div = createDiv document in
+        let auth_p = createP document in
+        let cont_p = createP document in
+        div##className <- Js.string "comment";
+        auth_p##innerHTML <- Js.string
+            ("By: "^cmt.author^" Posted on "^cmt.post_t);
+        cont_p##innerHTML <- Js.string cmt.cont;
+        List.iter (Dom.appendChild div) [cont_p; auth_p];
+        (* link the div to the time stamp *)
+        Lwt.async (fun () ->
+            let open Lwt_js_events in
+            Lwt.pick [clicks div (fun _ _ ->
+                vid_elt##currentTime <- Js.float cmt.t_stamp;
+                Lwt.return ())]);
+        match cmt.reply_to with
+        | Some s ->
+            let rpl_p = createP document in
+            rpl_p##innerHTML <- Js.string ("Reply to "^s);
+            Dom.appendChild div rpl_p;
+            div
+        | None -> div
+
+    let createCommentsDiv vid_elt =
+        let div = createDiv document in
+        cmt_divs := List.map (createCmtDiv vid_elt) !cmt_lst;
+        List.iter (Dom.appendChild div) !cmt_divs;
+        div
 end

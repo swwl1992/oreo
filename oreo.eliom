@@ -24,9 +24,7 @@ let () =
     Oreo_app.register
         ~service:simple_service
         (fun () () ->
-        ignore{unit{
-            simple_example %source_input %reactive_input
-        }};
+        ignore{unit{ simple_example %source_input %reactive_input }};
         simple_example_page);
 
     Oreo_app.register
@@ -45,4 +43,10 @@ let () =
         ~service:mcq_service
         (fun () () ->
         ignore{unit{ mcq_init %video_player }};
-        mcq_page)
+        mcq_page);
+
+    Oreo_app.register
+        ~service:cmt_service
+        (fun () () ->
+        ignore{unit{ comment_init %video_player }};
+        cmt_page)
