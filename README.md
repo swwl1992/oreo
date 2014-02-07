@@ -26,6 +26,7 @@ It also contains a light-weight framework written for Ocsigen framework to write
   * [Sub module](https://github.com/swwl1992/oreo/wiki/Sub-module-API) 
   * [Cap module](https://github.com/swwl1992/oreo/wiki/Cap-module-API)
   * [Mcq module](https://github.com/swwl1992/oreo/wiki/Mcq-module-API)
+  * Cmt module (coming soon)
 
 ## Execution
 Test your application by compiling it and running ocsigenserver locally
