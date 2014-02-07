@@ -30,9 +30,19 @@ let () =
         simple_example_page);
 
     Oreo_app.register
-        ~service:media_service
+        ~service:subtitle_service
         (fun () () ->
         ignore{unit{
             media_init %video_player
         }};
-        media_page)
+        subtitle_page);
+
+    Oreo_app.register
+        ~service:caption_service
+        (fun () () ->
+        caption_page);
+
+    Oreo_app.register
+        ~service:mcq_service
+        (fun () () ->
+        mcq_page)

@@ -12,9 +12,19 @@ let simple_service =
     ~path:["simple"]
     ~get_params:Eliom_parameter.unit ()
 
-let media_service =
+let subtitle_service =
     Eliom_service.service
     ~path:["media"]
+    ~get_params:Eliom_parameter.unit ()
+
+let caption_service =
+    Eliom_service.service
+    ~path:["caption"]
+    ~get_params:Eliom_parameter.unit ()
+
+let mcq_service =
+    Eliom_service.service
+    ~path:["mcq"]
     ~get_params:Eliom_parameter.unit ()
 
 (* elements *)
@@ -44,13 +54,16 @@ let skeleton content =
         (body content)
     )
     
+(* home page *)
 let main_page =
     skeleton [
         h1 [pcdata "Oreo"];
         p [pcdata "Ocsigen Reactive Programming applications."];
         ul [
-           li [a ~service:simple_service [pcdata "Simple example"] ()];
-           li [a ~service:media_service [pcdata "Reactive media"] ()]
+        li [a ~service:simple_service [pcdata "Simple example"] ()];
+        li [a ~service:subtitle_service [pcdata "Reactive subtitle"] ()];
+        li [a ~service:caption_service [pcdata "Caption plug-in"] ()];
+        li [a ~service:mcq_service [pcdata "MCQ Gadget"] ()];
         ]
     ]
 
@@ -61,7 +74,17 @@ let simple_example_page =
         div [reactive_input];
     ]
 
-let media_page =
+let subtitle_page =
     skeleton [
-        h1 [pcdata "Reactive media gadget"]
+        h1 [pcdata "Reactive subtitle gadget"]
+    ]
+
+let caption_page =
+    skeleton [
+        h1 [pcdata "Caption plug-in"]
+    ]
+
+let mcq_page =
+    skeleton [
+        h1 [pcdata "MCQ Gadget"]
     ]
