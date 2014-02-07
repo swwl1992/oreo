@@ -15,7 +15,7 @@ module Oreo_app =
           let application_name = "oreo"
         end)
 
-
+(* main *)
 let () =
     Oreo_app.register
         ~service:main_service
@@ -32,17 +32,17 @@ let () =
     Oreo_app.register
         ~service:subtitle_service
         (fun () () ->
-        ignore{unit{
-            media_init %video_player
-        }};
+        ignore{unit{ subtitle_init %video_player }};
         subtitle_page);
 
     Oreo_app.register
         ~service:caption_service
         (fun () () ->
+        ignore{unit{ caption_init %video_player }};
         caption_page);
 
     Oreo_app.register
         ~service:mcq_service
         (fun () () ->
+        ignore{unit{ mcq_init %video_player }};
         mcq_page)

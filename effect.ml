@@ -301,10 +301,7 @@ module Mcq = struct
         let mcq_div = createDiv document in
         mcq_div##innerHTML <- Js.string mcq.question;
         mcq_div##style##display <- Js.string "none";
-        mcq_div##style##position <- Js.string "relative";
         mcq_div##style##fontWeight <- Js.string "bold";
-        mcq_div##style##top <- Js.string "0px";
-        mcq_div##style##height <- Js.string "0px";
         appendWithWrapper mcq_div sel_elt;
         let submit_btn = createButton document in
         let expln_btn = createButton document in

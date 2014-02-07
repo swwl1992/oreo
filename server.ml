@@ -53,7 +53,7 @@ let skeleton content =
         )
         (body content)
     )
-    
+
 (* home page *)
 let main_page =
     skeleton [

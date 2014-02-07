@@ -19,7 +19,7 @@ let simple_example source_input reactive_input =
     let _ = window##setInterval(Js.wrap_callback run, 50.)
     in ()
 
-let media_init vid =
+let subtitle_init vid =
     let vid_elt = Interface.To_dom.of_video vid in
     let reset_btn_elt = createButton document in
     let export_btn_elt = createButton document in
@@ -38,42 +38,6 @@ let media_init vid =
     Dom.appendChild document##body div;
     let st_input_elt, et_input_elt, txt_textarea_elt, add_btn_elt =
         appendEditor div in
-
-    (* caption initialization *)
-    (*
-    let cap1 = {
-        start_t = 1.;
-        end_t = 4.;
-        text = "A seagull";
-        left = 0;
-        top = 0;
-        opacity = 0.0;
-        effect = FadeIn;
-    } in
-    let cap2 = {
-        start_t = 2.;
-        end_t = 5.;
-        text = "Jumps into water";
-        left = 0;
-        top = 30;
-        opacity = 1.0;
-        effect = FadeOut;
-    } in
-    cap_lst := [cap1; cap2];
-    startCap vid_elt div;
-    *)
-    
-    (* mcq initiation *)
-    let mcq = {
-        start_t = 2.0;
-        question = "How many people are there in the world?";
-        options = ["5 billion"; "6 billion"; "8 billion"];
-        ans = 1;
-        attempted = false;
-        explanation = "N.A.";
-    } in
-    mcq_lst := [mcq];
-    startMcq vid_elt div;
 
     (* modifying methods *)
     let reset_vid_src vid src =
@@ -131,3 +95,46 @@ let media_init vid =
             Lwt.return ());
         ]
     )
+
+let caption_init vid =
+    let vid_elt = Interface.To_dom.of_video vid in
+    let div = createDiv document in
+    Dom.appendChild div vid_elt;
+    Dom.appendChild document##body div;
+    let cap1 = {
+        start_t = 1.;
+        Effect.Cap.end_t = 4.;
+        text = "A seagull";
+        left = 0;
+        top = 0;
+        opacity = 0.0;
+        effect = FadeIn;
+    } in
+    let cap2 = {
+        start_t = 2.;
+        Effect.Cap.end_t = 5.;
+        text = "Jumps into water";
+        left = 0;
+        top = 30;
+        opacity = 1.0;
+        effect = FadeOut;
+    } in
+    cap_lst := [cap1; cap2];
+    startCap vid_elt div
+
+let mcq_init vid =
+    let vid_elt = Interface.To_dom.of_video vid in
+    let div = createDiv document in
+    appendWithWrapper div vid_elt;
+    Dom.appendChild document##body div;
+    (* mcq initiation *)
+    let mcq = {
+        start_t = 2.0;
+        question = "How many people are there in the world?";
+        options = ["5 billion"; "6 billion"; "8 billion"];
+        ans = 1;
+        attempted = false;
+        explanation = "N.A.";
+    } in
+    mcq_lst := [mcq];
+    startMcq vid_elt div
