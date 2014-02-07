@@ -16,7 +16,7 @@ It also contains a light-weight framework written for Ocsigen framework to write
 ## Dependencies
 * Ocaml release 4.00.1 or above
 * [Opam](http://opam.ocaml.org/) (Ocaml Package Manager)
-* [React](http://opam.ocamlpro.com/pkg/react.0.9.4.html) (installation from Opam)
+* [React](http://opam.ocaml.org/pkg/react/react.0.9.4/) (installation from Opam)
 * [Ocsigen framework](http://ocsigen.org/) release 3.0 or above (installation from Opam)
 
 ## API
