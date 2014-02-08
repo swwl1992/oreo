@@ -306,41 +306,52 @@ module Mcq = struct
         appendWithWrapper mcq_div sel_elt;
         let submit_btn = createButton document in
         let expln_btn = createButton document in
+        let cont_btn = createButton document in
         let ans_p = createP document in
         submit_btn##innerHTML <- Js.string "Submit";
+        cont_btn##innerHTML <- Js.string "Continue";
         expln_btn##innerHTML <- Js.string "Show Explanation";
+        cont_btn##style##display <- Js.string "none";
+        expln_btn##style##display <- Js.string "none";
         Dom.appendChild mcq_div submit_btn;
+        Dom.appendChild mcq_div cont_btn;
         Dom.appendChild mcq_div expln_btn;
         Dom.appendChild mcq_div ans_p;
+        (* replace the original mcq element from the list *)
+        let rec replaceMcq mcq = function
+        | [] -> []
+        | hd::tl ->
+            if hd.start_t = mcq.start_t then
+                let new_mcq = {
+                    start_t = hd.start_t;
+                    question = hd.question;
+                    options = hd.options;
+                    ans = hd.ans;
+                    attempted = true;
+                    explanation = hd.explanation;
+                } in
+                new_mcq::(replaceMcq mcq tl)
+            else
+                hd::(replaceMcq mcq tl)
+        in
         let submitAns node =
             let info =
             if sel_elt##selectedIndex = mcq.ans
             then "Corrected!" else "Wrong." in
             node##innerHTML <- Js.string info;
-            (* replace the original mcq element from the list *)
-            let rec replaceMcq mcq = function
-            | [] -> []
-            | hd::tl ->
-                if hd.start_t = mcq.start_t then
-                    let new_mcq = {
-                        start_t = hd.start_t;
-                        question = hd.question;
-                        options = hd.options;
-                        ans = hd.ans;
-                        attempted = true;
-                        explanation = hd.explanation;
-                    } in
-                    new_mcq::(replaceMcq mcq tl)
-                else
-                    hd::(replaceMcq mcq tl)
-            in
+            cont_btn##style##display <- Js.string "initial";
+            expln_btn##style##display <- Js.string "initial";
             let _ = window##setTimeout(Js.wrap_callback
             (fun () ->
                 begin
                     mcq_lst := replaceMcq mcq !mcq_lst;
                     vid_elt##play()
-                end), 5000.)
+                end), 10000.)
             in ()
+        in
+        let continuePlay () =
+            mcq_lst := replaceMcq mcq !mcq_lst;
+            vid_elt##play()
         in
         let showExp node mcq =
             node##innerHTML <- Js.string mcq.explanation
@@ -351,6 +362,9 @@ module Mcq = struct
             Lwt.pick [
             clicks submit_btn
                 (fun _ _ -> submitAns ans_p;
+                Lwt.return ());
+            clicks cont_btn 
+                (fun _ _ -> continuePlay ();
                 Lwt.return ());
             clicks expln_btn
                 (fun _ _ -> showExp ans_p mcq;
