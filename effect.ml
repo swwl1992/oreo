@@ -415,6 +415,7 @@ module Cmt = struct
     let cmt_lst = ref ([] : t list)
     let cmt_divs = ref ([] : divElement Js.t list)
 
+    (* add some hover effect to comments *)
     let initStyle () =
         let sty_elt = createStyle document in
         let cont = ".comment:hover{border-style:solid}" in
@@ -443,6 +444,37 @@ module Cmt = struct
             Dom.appendChild div rpl_p;
             div
         | None -> div
+
+    let appendCmtArea vid div cmts_div =
+        let ta = createTextarea document in
+        let name_input = createInput document in
+        let submit_btn = createButton document in
+        let construct_cmt () =
+            let t = Js.to_float vid##currentTime in
+            let a = Js.to_string name_input##value in
+            let d_now = jsnew Js.date_now () in
+            let d = Js.to_string (d_now##toString()) in
+            let c = Js.to_string ta##value in
+            let cmt = {
+                t_stamp = t;
+                author = a;
+                post_t = d;
+                cont = c;
+                reply_to = None;
+            } in
+            let cmt_div = createCmtDiv vid cmt in
+            Dom.appendChild cmts_div cmt_div
+        in
+        ta##cols <- 70;
+        submit_btn##innerHTML <- Js.string "Submit";
+        appendWithWrapper div ta;
+        appendWithWrapper div name_input;
+        appendWithWrapper div submit_btn;
+        Lwt.async (fun () ->
+            let open Lwt_js_events in
+            Lwt.pick [clicks submit_btn (fun _ _ -> construct_cmt ();
+            Lwt.return ())]);
+        ta, name_input, submit_btn
 
     let createCommentsDiv vid_elt =
         let div = createDiv document in

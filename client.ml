@@ -150,17 +150,18 @@ let comment_init vid =
     let cmt1 = {
         t_stamp = 1.00;
         author = "Kelvin";
-        post_t = "2013 02 04";
+        post_t = "2013-02-04";
         cont = "Why?";
         reply_to = None;
     } in
     let cmt2 = {
         t_stamp = 5.00;
         author = "John";
-        post_t = "2013 02 12";
+        post_t = "2013-02-12";
         cont = "Because...";
         reply_to = Some "Kelvin";
     } in
     cmt_lst := [cmt1; cmt2];
     let cmts_div = createCommentsDiv vid_elt in
+    let _ = appendCmtArea vid_elt div cmts_div in
     Dom.appendChild div cmts_div
