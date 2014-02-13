@@ -147,17 +147,18 @@ let comment_init vid =
     Dom.appendChild document##body div;
     (* comments initialization *)
     initStyle ();
+    (* for demo purpose, initialize two comments *)
     let cmt1 = {
         t_stamp = 1.00;
         author = "Kelvin";
-        post_t = "2013-02-04";
+        post_t = "Thu Feb 13 2014 15:12:03 GMT+0800 (SGT)";
         cont = "Why?";
         reply_to = None;
     } in
     let cmt2 = {
         t_stamp = 5.00;
         author = "John";
-        post_t = "2013-02-12";
+        post_t = "Thu Feb 13 2014 15:12:03 GMT+0800 (SGT)";
         cont = "Because...";
         reply_to = Some "Kelvin";
     } in

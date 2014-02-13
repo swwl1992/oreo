@@ -412,6 +412,7 @@ module Cmt = struct
         reply_to: string option;
     }
 
+    let reply_to = ref ("")
     let cmt_lst = ref ([] : t list)
     let cmt_divs = ref ([] : divElement Js.t list)
 
@@ -426,24 +427,34 @@ module Cmt = struct
         let div = createDiv document in
         let auth_p = createP document in
         let cont_p = createP document in
+        let reply_btn = createButton document in
+        reply_btn##innerHTML <- Js.string "Reply";
         div##className <- Js.string "comment";
         auth_p##innerHTML <- Js.string
             ("By: "^cmt.author^" Posted on "^cmt.post_t);
         cont_p##innerHTML <- Js.string cmt.cont;
-        List.iter (Dom.appendChild div) [cont_p; auth_p];
+        List.iter (Dom.appendChild div)
+            [cont_p; auth_p];
         (* link the div to the time stamp *)
         Lwt.async (fun () ->
             let open Lwt_js_events in
-            Lwt.pick [clicks div (fun _ _ ->
-                vid_elt##currentTime <- Js.float cmt.t_stamp;
-                Lwt.return ())]);
+            Lwt.pick [
+                clicks div (fun _ _ ->
+                    vid_elt##currentTime <- Js.float cmt.t_stamp;
+                    Lwt.return ());
+                clicks reply_btn(fun _ _ ->
+                    reply_to := cmt.author;
+                    Lwt.return ())]);
         match cmt.reply_to with
         | Some s ->
             let rpl_p = createP document in
             rpl_p##innerHTML <- Js.string ("Reply to "^s);
             Dom.appendChild div rpl_p;
+            Dom.appendChild div reply_btn;
             div
-        | None -> div
+        | None ->
+            Dom.appendChild div reply_btn;
+            div
 
     let appendCmtArea vid div cmts_div =
         let ta = createTextarea document in
@@ -460,7 +471,8 @@ module Cmt = struct
                 author = a;
                 post_t = d;
                 cont = c;
-                reply_to = None;
+                reply_to =
+                    if !reply_to = "" then None else Some !reply_to;
             } in
             let cmt_div = createCmtDiv vid cmt in
             Dom.appendChild cmts_div cmt_div
