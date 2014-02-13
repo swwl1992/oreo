@@ -48,5 +48,5 @@ let () =
     Oreo_app.register
         ~service:cmt_service
         (fun () () ->
-        ignore{unit{ comment_init %video_player }};
+        ignore{unit{ comment_init %video_player %bus }};
         cmt_page)

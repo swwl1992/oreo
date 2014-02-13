@@ -1,5 +1,8 @@
+open Common
 open Eliom_content
 open Html5.D
+
+let bus = Eliom_bus.create Json.t<message>
 
 (* service definitions *)
 let main_service =

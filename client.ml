@@ -140,7 +140,7 @@ let mcq_init vid =
     mcq_lst := [mcq];
     startMcq vid_elt div
 
-let comment_init vid =
+let comment_init vid bus =
     let vid_elt = Interface.To_dom.of_video vid in
     let div = createDiv document in
     Dom.appendChild div vid_elt;
@@ -151,7 +151,7 @@ let comment_init vid =
     let cmt1 = {
         t_stamp = 1.00;
         author = "Kelvin";
-        post_t = "Thu Feb 13 2014 15:12:03 GMT+0800 (SGT)";
+        post_t = "Thu Feb 11 2014 09:33:34 GMT+0800 (SGT)";
         cont = "Why?";
         reply_to = None;
     } in
@@ -164,5 +164,5 @@ let comment_init vid =
     } in
     cmt_lst := [cmt1; cmt2];
     let cmts_div = createCommentsDiv vid_elt in
-    let _ = appendCmtArea vid_elt div cmts_div in
+    let _ = appendCmtArea vid_elt div cmts_div bus in
     Dom.appendChild div cmts_div

@@ -1,5 +1,6 @@
 open Js
 open Dom_html
+open Common
 open Interface
 
 (* helper functions *)
@@ -427,14 +428,14 @@ module Cmt = struct
         let div = createDiv document in
         let auth_p = createP document in
         let cont_p = createP document in
+        let t_p = createP document in
         let reply_btn = createButton document in
         reply_btn##innerHTML <- Js.string "Reply";
         div##className <- Js.string "comment";
-        auth_p##innerHTML <- Js.string
-            ("By: "^cmt.author^" Posted on "^cmt.post_t);
+        auth_p##innerHTML <- Js.string ("By: "^cmt.author);
         cont_p##innerHTML <- Js.string cmt.cont;
-        List.iter (Dom.appendChild div)
-            [cont_p; auth_p];
+        t_p##innerHTML <- Js.string ("Posted on "^cmt.post_t);
+        List.iter (Dom.appendChild div) [cont_p; auth_p; t_p];
         (* link the div to the time stamp *)
         Lwt.async (fun () ->
             let open Lwt_js_events in
@@ -456,23 +457,30 @@ module Cmt = struct
             Dom.appendChild div reply_btn;
             div
 
-    let appendCmtArea vid div cmts_div =
+    let appendCmtArea vid div cmts_div bus =
         let ta = createTextarea document in
         let name_input = createInput document in
         let submit_btn = createButton document in
-        let construct_cmt () =
+        (* construct based on current video *)
+        let send_cmt () =
             let t = Js.to_float vid##currentTime in
             let a = Js.to_string name_input##value in
             let d_now = jsnew Js.date_now () in
             let d = Js.to_string (d_now##toString()) in
             let c = Js.to_string ta##value in
+            let r_to = 
+                if !reply_to = "" then None else Some !reply_to in
+            let _ = Eliom_bus.write bus (t, a, d, c, r_to) in
+            ()
+        in
+        (* construction based on info from remote bus *)
+        let construct_rmt_cmt (t, a, d, c, r_to) =
             let cmt = {
                 t_stamp = t;
                 author = a;
                 post_t = d;
                 cont = c;
-                reply_to =
-                    if !reply_to = "" then None else Some !reply_to;
+                reply_to = r_to;
             } in
             let cmt_div = createCmtDiv vid cmt in
             Dom.appendChild cmts_div cmt_div
@@ -484,8 +492,10 @@ module Cmt = struct
         appendWithWrapper div submit_btn;
         Lwt.async (fun () ->
             let open Lwt_js_events in
-            Lwt.pick [clicks submit_btn (fun _ _ -> construct_cmt ();
+            Lwt.pick [clicks submit_btn (fun _ _ -> send_cmt ();
             Lwt.return ())]);
+        Lwt.async (fun () ->
+            Lwt_stream.iter construct_rmt_cmt (Eliom_bus.stream bus));
         ta, name_input, submit_btn
 
     let createCommentsDiv vid_elt =
