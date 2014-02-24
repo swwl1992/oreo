@@ -1,2 +1,2 @@
-type message = (float * string * string * string * string option)
+type message = (int * float * string * string * string * string option)
     deriving (Json)

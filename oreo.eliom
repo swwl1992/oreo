@@ -19,7 +19,8 @@ module Oreo_app =
 let () =
     Oreo_app.register
         ~service:main_service
-        (fun () () -> main_page);
+        (fun () () -> 
+        main_page);
 
     Oreo_app.register
         ~service:simple_service

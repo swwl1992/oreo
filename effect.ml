@@ -364,7 +364,7 @@ module Mcq = struct
             clicks submit_btn
                 (fun _ _ -> submitAns ans_p;
                 Lwt.return ());
-            clicks cont_btn 
+            clicks cont_btn
                 (fun _ _ -> continuePlay ();
                 Lwt.return ());
             clicks expln_btn
@@ -406,6 +406,7 @@ end
 (* Comment module *)
 module Cmt = struct
     type t = {
+        id: int; (* unique id starts from 0 *)
         t_stamp: float;
         author: string;
         post_t: string;
@@ -413,7 +414,11 @@ module Cmt = struct
         reply_to: string option;
     }
 
-    let reply_to = ref ("")
+    let post_id = ref 0
+    let link_id = ref interv_id
+    let curr_url = ref ""
+    let reply_to = ref ""
+    let reply_to_div = ref (createDiv document)
     let cmt_lst = ref ([] : t list)
     let cmt_divs = ref ([] : divElement Js.t list)
 
@@ -424,18 +429,36 @@ module Cmt = struct
         sty_elt##innerHTML <- Js.string cont;
         Dom.appendChild document##head sty_elt
 
+    (* create a link which points to comments *)
+    let createCmtLink vid_elt =
+        let out_div = createDiv document in
+        let cmt_link = createA document in
+        out_div##style##position <- Js.string "relative";
+        out_div##style##width <- Js.string "200px";
+        out_div##style##top <- Js.string "0px";
+        out_div##style##height <- Js.string "0px";
+        cmt_link##style##fontWeight <- Js.string "bold";
+        cmt_link##style##color <- Js.string "white";
+        Dom.appendChild out_div cmt_link;
+        out_div, cmt_link
+
     let createCmtDiv vid_elt cmt =
         let div = createDiv document in
         let auth_p = createP document in
         let cont_p = createP document in
+        let cont_a = createA document in
         let t_p = createP document in
         let reply_btn = createButton document in
         reply_btn##innerHTML <- Js.string "Reply";
         div##className <- Js.string "comment";
         auth_p##innerHTML <- Js.string ("By: "^cmt.author);
-        cont_p##innerHTML <- Js.string cmt.cont;
+        cont_a##innerHTML <- Js.string cmt.cont;
+        cont_a##href <- Js.string ("#"^(string_of_int !post_id));
+        cont_a##name <- Js.string (string_of_int !post_id);
+        incr post_id;
         t_p##innerHTML <- Js.string ("Posted on "^cmt.post_t);
         List.iter (Dom.appendChild div) [cont_p; auth_p; t_p];
+        Dom.appendChild cont_p cont_a;
         (* link the div to the time stamp *)
         Lwt.async (fun () ->
             let open Lwt_js_events in
@@ -445,6 +468,7 @@ module Cmt = struct
                     Lwt.return ());
                 clicks reply_btn(fun _ _ ->
                     reply_to := cmt.author;
+                    reply_to_div := div;
                     Lwt.return ())]);
         match cmt.reply_to with
         | Some s ->
@@ -461,29 +485,36 @@ module Cmt = struct
         let ta = createTextarea document in
         let name_input = createInput document in
         let submit_btn = createButton document in
-        (* construct based on current video *)
+        (* send the info via the bus *)
         let send_cmt () =
+            let i = !post_id in
             let t = Js.to_float vid##currentTime in
             let a = Js.to_string name_input##value in
             let d_now = jsnew Js.date_now () in
             let d = Js.to_string (d_now##toString()) in
             let c = Js.to_string ta##value in
-            let r_to = 
+            let r_to =
                 if !reply_to = "" then None else Some !reply_to in
-            let _ = Eliom_bus.write bus (t, a, d, c, r_to) in
+            let _ = Eliom_bus.write bus (i, t, a, d, c, r_to) in
             ()
         in
         (* construction based on info from remote bus *)
-        let construct_rmt_cmt (t, a, d, c, r_to) =
+        let construct_rmt_cmt (i, t, a, d, c, r_to) =
             let cmt = {
+                id = i;
                 t_stamp = t;
                 author = a;
                 post_t = d;
                 cont = c;
                 reply_to = r_to;
             } in
+            (* update the entire comment list *)
+            cmt_lst := !cmt_lst @ [cmt];
             let cmt_div = createCmtDiv vid cmt in
-            Dom.appendChild cmts_div cmt_div
+            begin match cmt.reply_to with
+            | None -> Dom.appendChild cmts_div cmt_div
+            | Some s -> Dom.appendChild !reply_to_div cmt_div
+            end
         in
         ta##cols <- 70;
         submit_btn##innerHTML <- Js.string "Submit";
@@ -503,4 +534,34 @@ module Cmt = struct
         cmt_divs := List.map (createCmtDiv vid_elt) !cmt_lst;
         List.iter (Dom.appendChild div) !cmt_divs;
         div
+
+    (* display the link inside the element *)
+    let startCycleCmt vid_elt cmt_link () =
+        let rec cycleCmt vid_elt cmt_link cmt_lst =
+            let curr_t = Js.to_float vid_elt##currentTime in
+            match cmt_lst with
+            | [] -> cmt_link##innerHTML <- Js.string "";
+            | h::t ->
+                let t_stamp = h.t_stamp in
+                let id_str = string_of_int h.id in
+                if t_stamp -. 0.5 <= curr_t && curr_t <= t_stamp +. 0.5
+                then begin
+                    cmt_link##innerHTML <- Js.string
+                        ("User comment #"^id_str);
+                    cmt_link##href <- Js.string ("/comment#"^id_str)
+                end
+                else
+                    cycleCmt vid_elt cmt_link t
+        in
+        cycleCmt vid_elt cmt_link !cmt_lst
+
+    (* make the comment link appear on the video element *)
+    let startLink vid_elt div bus =
+        let cmts_div = createCommentsDiv vid_elt in
+        let _ = appendCmtArea vid_elt div cmts_div bus in
+        let out_div, cmt_link = createCmtLink vid_elt in
+        Dom.appendChild div cmts_div;
+        Dom.insertBefore div out_div (Js.some vid_elt);
+        link_id := Dom_html.window##setInterval(Js.wrap_callback
+                (startCycleCmt vid_elt cmt_link), 50.)
 end
