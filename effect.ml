@@ -230,8 +230,10 @@ module Cap = struct
         let start_t = cap.start_t in
         let end_t = cap.end_t in
         let text = cap.text in
+        (* temporarily commented out
         let left = cap.left in
         let top = cap.top in
+        *)
         let effect = cap.effect in
         let curr_t = Js.to_float vid_elt##currentTime in
         if start_t <= curr_t && curr_t <= end_t then
@@ -508,9 +510,9 @@ module Cmt = struct
                 cont = c;
                 reply_to = r_to;
             } in
-            (* update the entire comment list *)
-            cmt_lst := !cmt_lst @ [cmt];
             let cmt_div = createCmtDiv vid cmt in
+            cmt_lst := !cmt_lst @ [cmt];
+            cmt_divs := !cmt_divs @ [cmt_div];
             begin match cmt.reply_to with
             | None -> Dom.appendChild cmts_div cmt_div
             | Some s -> Dom.appendChild !reply_to_div cmt_div
@@ -529,11 +531,32 @@ module Cmt = struct
             Lwt_stream.iter construct_rmt_cmt (Eliom_bus.stream bus));
         ta, name_input, submit_btn
 
-    let createCommentsDiv vid_elt =
+    (* return a div to contain all the comments *)
+    (* WARNING: ONLY top level comments will be shown *)
+    let createCmtsDiv vid_elt =
         let div = createDiv document in
         cmt_divs := List.map (createCmtDiv vid_elt) !cmt_lst;
-        List.iter (Dom.appendChild div) !cmt_divs;
+        (* decide a comment is on top level *)
+        let is_top cmt =
+            match cmt.reply_to with
+            | None -> true
+            | Some s -> false
+        in
+        (* conditional iteration *)
+        let rec con_iter con f l1 l2 =
+            match (l1, l2) with
+            | ([], []) -> ()
+            | (h1::t1, h2::t2) ->
+                if (con h1) then f h2 else ();
+                con_iter con f t1 t2
+            | (_, _) -> ()
+        in
+        con_iter is_top (Dom.appendChild div) !cmt_lst !cmt_divs;
         div
+
+    (* remove the comments div *)
+    let clearCmtDivs out_div div =
+        Dom.removeChild out_div div
 
     (* display the link inside the element *)
     let startCycleCmt vid_elt cmt_link () =
@@ -557,7 +580,8 @@ module Cmt = struct
 
     (* make the comment link appear on the video element *)
     let startLink vid_elt div bus =
-        let cmts_div = createCommentsDiv vid_elt in
+        let cmts_div = createCmtsDiv vid_elt in
+        (* clearCmtDivs cmts_div; *)
         let _ = appendCmtArea vid_elt div cmts_div bus in
         let out_div, cmt_link = createCmtLink vid_elt in
         Dom.appendChild div cmts_div;
