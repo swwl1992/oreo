@@ -431,6 +431,13 @@ module Cmt = struct
         sty_elt##innerHTML <- Js.string cont;
         Dom.appendChild document##head sty_elt
 
+    (* decide a comment is on top level *)
+    let is_top cmt =
+        match cmt.reply_to with
+        | None -> true
+        | Some s -> false
+
+
     (* create a link which points to comments *)
     let createCmtLink vid_elt =
         let out_div = createDiv document in
@@ -453,6 +460,7 @@ module Cmt = struct
         let reply_btn = createButton document in
         reply_btn##innerHTML <- Js.string "Reply";
         div##className <- Js.string "comment";
+        div##id <- Js.string (string_of_int cmt.id);
         auth_p##innerHTML <- Js.string ("By: "^cmt.author);
         cont_a##innerHTML <- Js.string cmt.cont;
         cont_a##href <- Js.string ("#"^(string_of_int !post_id));
@@ -511,8 +519,11 @@ module Cmt = struct
                 reply_to = r_to;
             } in
             let cmt_div = createCmtDiv vid cmt in
+            cmt_div##id <- Js.string (string_of_int cmt.id);
             cmt_lst := !cmt_lst @ [cmt];
-            cmt_divs := !cmt_divs @ [cmt_div];
+            if is_top cmt then
+                cmt_divs := !cmt_divs @ [cmt_div]
+            else ();
             begin match cmt.reply_to with
             | None -> Dom.appendChild cmts_div cmt_div
             | Some s -> Dom.appendChild !reply_to_div cmt_div
@@ -536,12 +547,6 @@ module Cmt = struct
     let createCmtsDiv vid_elt =
         let div = createDiv document in
         cmt_divs := List.map (createCmtDiv vid_elt) !cmt_lst;
-        (* decide a comment is on top level *)
-        let is_top cmt =
-            match cmt.reply_to with
-            | None -> true
-            | Some s -> false
-        in
         (* conditional iteration *)
         let rec con_iter con f l1 l2 =
             match (l1, l2) with
@@ -558,8 +563,34 @@ module Cmt = struct
     let clearCmtDivs out_div div =
         Dom.removeChild out_div div
 
+    (* rebuild the entire comments div based on time *)
+    let rebuildCmtsDiv vid_elt cmts_div =
+        let cmp a b =
+            let curr_t = Js.to_float vid_elt##currentTime in
+            let dist_a = abs_float (curr_t -. a.t_stamp) in
+            let dist_b = abs_float (curr_t -. b.t_stamp) in
+            int_of_float (dist_a -. dist_b)
+        in
+        let new_cmt_lst = List.sort cmp !cmt_lst in
+        (* if new list is diff from old one, reorder the div *)
+        if new_cmt_lst = !cmt_lst then () else begin
+        cmt_lst := new_cmt_lst;
+        let first_cmt = List.nth new_cmt_lst 0 in
+        let rec reorder cmt = function
+            | [] -> ()
+            | h::t ->
+                let div_id = int_of_string (Js.to_string h##id) in
+                let first_cmt_div = cmts_div##firstChild in
+                if div_id = cmt.id then begin
+                    Dom.insertBefore cmts_div h first_cmt_div
+                end
+                else reorder cmt t
+        in
+        reorder first_cmt !cmt_divs
+        end
+
     (* display the link inside the element *)
-    let startCycleCmt vid_elt cmt_link () =
+    let startCycleCmt vid_elt cmt_link cmts_div () =
         let rec cycleCmt vid_elt cmt_link cmt_lst =
             let curr_t = Js.to_float vid_elt##currentTime in
             match cmt_lst with
@@ -576,7 +607,8 @@ module Cmt = struct
                 else
                     cycleCmt vid_elt cmt_link t
         in
-        cycleCmt vid_elt cmt_link !cmt_lst
+        cycleCmt vid_elt cmt_link !cmt_lst;
+        rebuildCmtsDiv vid_elt cmts_div
 
     (* make the comment link appear on the video element *)
     let startLink vid_elt div bus =
@@ -587,5 +619,5 @@ module Cmt = struct
         Dom.appendChild div cmts_div;
         Dom.insertBefore div out_div (Js.some vid_elt);
         link_id := Dom_html.window##setInterval(Js.wrap_callback
-                (startCycleCmt vid_elt cmt_link), 50.)
+                (startCycleCmt vid_elt cmt_link cmts_div), 50.)
 end

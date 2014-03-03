@@ -159,10 +159,10 @@ let comment_init vid bus =
     let cmt2 = {
         id = 1;
         t_stamp = 5.00;
-        author = "John";
-        post_t = "Thu Feb 13 2014 15:12:03 GMT+0800 (SGT)";
-        cont = "Because...";
-        reply_to = Some "Kelvin";
+        author = "Bill";
+        post_t = "Thu Feb 11 2014 15:34:03 GMT+0800 (SGT)";
+        cont = "I think I know.";
+        reply_to = None;
     } in
     cmt_lst := [cmt1; cmt2];
     startLink vid_elt div bus
