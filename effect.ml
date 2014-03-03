@@ -421,6 +421,7 @@ module Cmt = struct
     let curr_url = ref ""
     let reply_to = ref ""
     let reply_to_div = ref (createDiv document)
+    let reply_ind_p = ref (createP document)
     let cmt_lst = ref ([] : t list)
     let cmt_divs = ref ([] : divElement Js.t list)
 
@@ -477,6 +478,8 @@ module Cmt = struct
                     vid_elt##currentTime <- Js.float cmt.t_stamp;
                     Lwt.return ());
                 clicks reply_btn(fun _ _ ->
+                    (!reply_ind_p)##innerHTML <-
+                        Js.string ("Reply to "^cmt.author);
                     reply_to := cmt.author;
                     reply_to_div := div;
                     Lwt.return ())]);
@@ -495,8 +498,9 @@ module Cmt = struct
         let ta = createTextarea document in
         let name_input = createInput document in
         let submit_btn = createButton document in
+        let new_btn = createButton document in
         (* send the info via the bus *)
-        let send_cmt () =
+        let send_cmt reply_to =
             let i = !post_id in
             let t = Js.to_float vid##currentTime in
             let a = Js.to_string name_input##value in
@@ -504,7 +508,7 @@ module Cmt = struct
             let d = Js.to_string (d_now##toString()) in
             let c = Js.to_string ta##value in
             let r_to =
-                if !reply_to = "" then None else Some !reply_to in
+                if reply_to = "" then None else Some reply_to in
             let _ = Eliom_bus.write bus (i, t, a, d, c, r_to) in
             ()
         in
@@ -531,13 +535,19 @@ module Cmt = struct
         in
         ta##cols <- 70;
         submit_btn##innerHTML <- Js.string "Submit";
+        new_btn##innerHTML <- Js.string "New";
+        Dom.appendChild div !reply_ind_p;
         appendWithWrapper div ta;
         appendWithWrapper div name_input;
         appendWithWrapper div submit_btn;
+        appendWithWrapper div new_btn;
         Lwt.async (fun () ->
             let open Lwt_js_events in
-            Lwt.pick [clicks submit_btn (fun _ _ -> send_cmt ();
-            Lwt.return ())]);
+            Lwt.pick [
+                clicks submit_btn (fun _ _ -> send_cmt !reply_to;
+                    Lwt.return ());
+                clicks new_btn (fun _ _ -> send_cmt "";
+                    Lwt.return ())]);
         Lwt.async (fun () ->
             Lwt_stream.iter construct_rmt_cmt (Eliom_bus.stream bus));
         ta, name_input, submit_btn
