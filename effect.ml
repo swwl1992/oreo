@@ -530,7 +530,10 @@ module Cmt = struct
             else ();
             begin match cmt.reply_to with
             | None -> Dom.appendChild cmts_div cmt_div
-            | Some s -> Dom.appendChild !reply_to_div cmt_div
+            | Some s ->
+                (* left indentation *)
+                cmt_div##style##marginLeft <- Js.string "75px";
+                Dom.appendChild !reply_to_div cmt_div
             end
         in
         ta##cols <- 70;
@@ -546,7 +549,9 @@ module Cmt = struct
             Lwt.pick [
                 clicks submit_btn (fun _ _ -> send_cmt !reply_to;
                     Lwt.return ());
-                clicks new_btn (fun _ _ -> send_cmt "";
+                clicks new_btn (fun _ _ ->
+                    send_cmt "";
+                    (!reply_ind_p)##innerHTML <- Js.string "";
                     Lwt.return ())]);
         Lwt.async (fun () ->
             Lwt_stream.iter construct_rmt_cmt (Eliom_bus.stream bus));

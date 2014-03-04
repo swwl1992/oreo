@@ -146,7 +146,7 @@ let comment_init vid bus =
     Dom.appendChild div vid_elt;
     Dom.appendChild document##body div;
     (* comments initialization *)
-    initStyle ();
+    (* initStyle (); *)
     (* for demo purpose, initialize two comments *)
     let cmt1 = {
         id = 0;
