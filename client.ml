@@ -30,6 +30,8 @@ let subtitle_init vid =
 
     (* initialization *)
     reset_btn_elt##innerHTML <- Js.string "Reset Source";
+    reset_btn_elt##className <- Js.string "btn btn-warning";
+    src_input_elt##className <- Js.string "form-control";
     appendWithWrapper document##body reset_btn_elt;
     appendWithWrapper document##body src_input_elt;
 

@@ -6,6 +6,7 @@ open Interface
 (* helper functions *)
 let appendWithWrapper bdy elt =
     let div = createDiv document in
+        div##className <- Js.string "form-group";
         Dom.appendChild div elt;
         Dom.appendChild bdy div
 
@@ -47,6 +48,10 @@ module Sub = struct
         let txt_textarea = createTextarea document in
         let add_button = createButton document in
         add_button##innerHTML <- Js.string "Add subtitle";
+        add_button##className <- Js.string "btn btn-primary";
+        st_input##className <- Js.string "form-control";
+        et_input##className <- Js.string "form-control";
+        txt_textarea##className <- Js.string "form-control";
         appendWithWrapper div st_input;
         appendWithWrapper div et_input;
         appendWithWrapper div txt_textarea;
@@ -459,6 +464,7 @@ module Cmt = struct
         let t_p = createP document in
         let reply_btn = createButton document in
         reply_btn##innerHTML <- Js.string "Reply";
+        reply_btn##className <- Js.string "btn btn-primary";
         div##className <- Js.string "comment";
         div##id <- Js.string (string_of_int cmt.id);
         auth_p##innerHTML <- Js.string ("By: "^cmt.author);
@@ -537,7 +543,11 @@ module Cmt = struct
         in
         ta##cols <- 70;
         submit_btn##innerHTML <- Js.string "Submit";
+        submit_btn##className <- Js.string "btn btn-info";
         new_btn##innerHTML <- Js.string "New";
+        new_btn##className <- Js.string "btn btn-success";
+        ta##className <- Js.string "form-control";
+        name_input##className <- Js.string "form-control";
         Dom.appendChild div !reply_ind_p;
         appendWithWrapper div ta;
         appendWithWrapper div name_input;
