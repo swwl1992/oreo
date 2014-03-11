@@ -422,10 +422,10 @@ module Cmt = struct
     }
 
     let post_id = ref 0
+    let reply_to_id = ref (-1)
     let link_id = ref interv_id
     let curr_url = ref ""
     let reply_to = ref ""
-    let reply_to_div = ref (createDiv document)
     let reply_ind_p = ref (createP document)
     let cmt_lst = ref ([] : t list)
     let cmt_divs = ref ([] : divElement Js.t list)
@@ -482,11 +482,11 @@ module Cmt = struct
                 clicks div (fun _ _ ->
                     vid_elt##currentTime <- Js.float cmt.t_stamp;
                     Lwt.return ());
-                clicks reply_btn(fun _ _ ->
+                clicks reply_btn (fun _ _ ->
                     (!reply_ind_p)##innerHTML <-
                         Js.string ("Reply to "^cmt.author);
                     reply_to := cmt.author;
-                    reply_to_div := div;
+                    reply_to_id := cmt.id;
                     Lwt.return ())]);
         match cmt.reply_to with
         | Some s ->
@@ -507,6 +507,7 @@ module Cmt = struct
         (* send the info via the bus *)
         let send_cmt reply_to =
             let i = !post_id in
+            let ri = !reply_to_id in
             let t = Js.to_float vid##currentTime in
             let a = Js.to_string name_input##value in
             let d_now = jsnew Js.date_now () in
@@ -514,11 +515,22 @@ module Cmt = struct
             let c = Js.to_string ta##value in
             let r_to =
                 if reply_to = "" then None else Some reply_to in
-            let _ = Eliom_bus.write bus (i, t, a, d, c, r_to) in
+            let _ = Eliom_bus.write bus (i, ri, t, a, d, c, r_to) in
             ()
         in
+        (* search the id in the list of divs *)
+        (* and append the cmt_div to the matching div *)
+        let rec appendCmt id cmt_div = function
+            | [] -> ()
+            | h::t ->
+                let div_id = int_of_string (Js.to_string h##id) in
+                if div_id = id then
+                    Dom.appendChild h cmt_div
+                else appendCmt id cmt_div t
+        in
         (* construction based on info from remote bus *)
-        let construct_rmt_cmt (i, t, a, d, c, r_to) =
+        (* ri - reply to id *)
+        let construct_rmt_cmt (i, ri, t, a, d, c, r_to) =
             let cmt = {
                 id = i;
                 t_stamp = t;
@@ -530,15 +542,14 @@ module Cmt = struct
             let cmt_div = createCmtDiv vid cmt in
             cmt_div##id <- Js.string (string_of_int cmt.id);
             cmt_lst := !cmt_lst @ [cmt];
-            if is_top cmt then
-                cmt_divs := !cmt_divs @ [cmt_div]
-            else ();
+            cmt_divs := !cmt_divs @ [cmt_div];
             begin match cmt.reply_to with
             | None -> Dom.appendChild cmts_div cmt_div
             | Some s ->
                 (* left indentation *)
                 cmt_div##style##marginLeft <- Js.string "75px";
-                Dom.appendChild !reply_to_div cmt_div
+                (* Dom.appendChild !reply_to_div cmt_div *)
+                appendCmt ri cmt_div !cmt_divs
             end
         in
         ta##cols <- 70;
@@ -605,9 +616,8 @@ module Cmt = struct
             | h::t ->
                 let div_id = int_of_string (Js.to_string h##id) in
                 let first_cmt_div = cmts_div##firstChild in
-                if div_id = cmt.id then begin
+                if div_id = cmt.id && (is_top cmt) then
                     Dom.insertBefore cmts_div h first_cmt_div
-                end
                 else reorder cmt t
         in
         reorder first_cmt !cmt_divs
