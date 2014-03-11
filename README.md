@@ -11,7 +11,9 @@ how reactive programming can be used in web development.
 [Ocsigen](http://ocsigen.org) framework is a web framework written in Ocaml and for Ocaml programmers to
 develop web applications.
 
-It also contains a light-weight framework written for Ocsigen framework to write multimedia applications.
+It contains a light-weight framework written for Ocsigen framework to write multimedia applications,
+made up of `interface.ml` and `effect.ml`.
+The rest of the files are used to demonstrate the effect of the framework.
 
 ## Dependencies
 * Ocaml release 4.00.1 or above
