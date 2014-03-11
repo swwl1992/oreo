@@ -47,8 +47,7 @@ let reactive_input = string_input
 let video_player =
     video
     ~srcs:(uri_of_string
-        (fun () ->
-            "http://video-js.zencoder.com/oceans-clip.webm"), [])
+        (fun () -> video_url), [])
     ~a:[a_controls (`Controls)]
     [pcdata "Your browser does not support video element"]
 
@@ -57,8 +56,9 @@ let skeleton content =
     Lwt.return
     (html
         (head
-            (title (pcdata "Ocsigen Reactive Programming")) []
-        )
+            (title (pcdata "Ocsigen Reactive Programming"))
+            [css_link ~uri:(uri_of_string (fun () -> bootstrap_url))
+            ()])
         (body content)
     )
 

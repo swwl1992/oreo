@@ -438,7 +438,6 @@ module Cmt = struct
         | None -> true
         | Some s -> false
 
-
     (* create a link which points to comments *)
     let createCmtLink vid_elt =
         let out_div = createDiv document in
