@@ -32,11 +32,15 @@ let subtitle_init vid =
     reset_btn_elt##innerHTML <- Js.string "Reset Source";
     reset_btn_elt##className <- Js.string "btn btn-warning";
     src_input_elt##className <- Js.string "form-control";
-    appendWithWrapper document##body reset_btn_elt;
-    appendWithWrapper document##body src_input_elt;
 
     (* wrap video and the subtitle into a div *)
     let div = createDiv document in
+    let title = createH1 document in
+    title##innerHTML <- Js.string "Reactive Subtitle Gadget";
+    div##className <- Js.string "container";
+    Dom.appendChild div title;
+    appendWithWrapper div reset_btn_elt;
+    appendWithWrapper div src_input_elt;
     Dom.appendChild div vid_elt;
     Dom.appendChild document##body div;
     let st_input_elt, et_input_elt, txt_textarea_elt, add_btn_elt =
@@ -102,6 +106,10 @@ let subtitle_init vid =
 let caption_init vid =
     let vid_elt = Interface.To_dom.of_video vid in
     let div = createDiv document in
+    let title = createH1 document in
+    title##innerHTML <- Js.string "Caption Plug-in";
+    div##className <- Js.string "container";
+    Dom.appendChild div title;
     Dom.appendChild div vid_elt;
     Dom.appendChild document##body div;
     let cap1 = {
@@ -128,6 +136,10 @@ let caption_init vid =
 let mcq_init vid =
     let vid_elt = Interface.To_dom.of_video vid in
     let div = createDiv document in
+    let title = createH1 document in
+    title##innerHTML <- Js.string "MCQ Gadget";
+    div##className <- Js.string "container";
+    Dom.appendChild div title;
     appendWithWrapper div vid_elt;
     Dom.appendChild document##body div;
     (* mcq initiation *)
@@ -145,6 +157,10 @@ let mcq_init vid =
 let comment_init vid bus =
     let vid_elt = Interface.To_dom.of_video vid in
     let div = createDiv document in
+    let title = createH1 document in
+    title##innerHTML <- Js.string "Comment Helper";
+    div##className <- Js.string "container";
+    Dom.appendChild div title;
     Dom.appendChild div vid_elt;
     Dom.appendChild document##body div;
     (* comments initialization *)

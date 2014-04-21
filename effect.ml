@@ -303,6 +303,7 @@ module Mcq = struct
         let opt_lst = List.map creaetOptElt mcq.options in
         let sel_elt = createSelect document in
         List.iter (Dom.appendChild sel_elt) opt_lst;
+        sel_elt##className <- Js.string "form-control";
         sel_elt
 
     let createMcqDiv vid_elt mcq =
@@ -317,6 +318,7 @@ module Mcq = struct
         let cont_btn = createButton document in
         let ans_p = createP document in
         submit_btn##innerHTML <- Js.string "Submit";
+        submit_btn##className <- Js.string "btn btn-primary";
         cont_btn##innerHTML <- Js.string "Continue";
         expln_btn##innerHTML <- Js.string "Show Explanation";
         cont_btn##style##display <- Js.string "none";
@@ -548,15 +550,14 @@ module Cmt = struct
             | Some s ->
                 (* left indentation *)
                 cmt_div##style##marginLeft <- Js.string "75px";
-                (* Dom.appendChild !reply_to_div cmt_div *)
                 appendCmt ri cmt_div !cmt_divs
             end
         in
         ta##cols <- 70;
         submit_btn##innerHTML <- Js.string "Submit";
-        submit_btn##className <- Js.string "btn btn-info";
+        submit_btn##className <- Js.string "btn btn-info btn-block";
         new_btn##innerHTML <- Js.string "New";
-        new_btn##className <- Js.string "btn btn-success";
+        new_btn##className <- Js.string "btn btn-success btn-block";
         ta##className <- Js.string "form-control";
         name_input##className <- Js.string "form-control";
         Dom.appendChild div !reply_ind_p;

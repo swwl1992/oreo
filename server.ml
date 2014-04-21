@@ -37,11 +37,12 @@ let cmt_service =
 
 (* elements *)
 let source_input = string_input
-    ~a:[a_placeholder "Source text"]
+    ~a:[a_placeholder "Source text"; a_class ["form-control"]]
     ~input_type:`Text ()
 
 let reactive_input = string_input
-    ~a:[a_placeholder "React to the value changes above"]
+    ~a:[a_placeholder "React to the value changes above";
+        a_class ["form-control"]]
     ~input_type:`Text ()
 
 let video_player =
@@ -65,6 +66,7 @@ let skeleton content =
 (* home page *)
 let main_page =
     skeleton [
+        div ~a:[a_class ["container"]] [
         h1 [pcdata "Oreo"];
         p [pcdata "Ocsigen Reactive Programming applications."];
         ul [
@@ -73,32 +75,32 @@ let main_page =
         li [a ~service:caption_service [pcdata "Caption plug-in"] ()];
         li [a ~service:mcq_service [pcdata "MCQ gadget"] ()];
         li [a ~service:cmt_service [pcdata "Comment helper"] ()];
-        ]
+        ]]
     ]
 
 let simple_example_page =
     skeleton [
-        h1 [pcdata "A simple Example"];
-        div [source_input];
-        div [reactive_input];
+        div ~a:[a_class ["container"]] [
+            h1 [pcdata "A Simple Example"];
+            div ~a:[a_class ["form-group"]] [
+                label [pcdata "Input"];
+                div [source_input];
+            ];
+            div ~a:[a_class ["form-group"]] [
+                label [pcdata "Reactive output"];
+                div [reactive_input]
+            ]
+        ]
     ]
 
 let subtitle_page =
-    skeleton [
-        h1 [pcdata "Reactive subtitle gadget"]
-    ]
+    skeleton []
 
 let caption_page =
-    skeleton [
-        h1 [pcdata "Caption plug-in"]
-    ]
+    skeleton []
 
 let mcq_page =
-    skeleton [
-        h1 [pcdata "MCQ Gadget"]
-    ]
+    skeleton []
 
 let cmt_page =
-    skeleton [
-        h1 [pcdata "Comment helper"]
-    ]
+    skeleton []
