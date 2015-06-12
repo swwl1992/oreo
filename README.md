@@ -1,9 +1,9 @@
 Oreo (Ocaml Reactive)
 ======
-[Reactive programming](http://http://en.wikipedia.org/wiki/Reactive_programming)
+[Reactive programming](http://en.wikipedia.org/wiki/Reactive_programming)
 is a programming paradigm
 oriented around data flows and the propagation of change.
-[React](http://http://erratique.ch/software/react)
+[React](http://erratique.ch/software/react)
 is a module to allow Ocaml programmers to code in reactive style.
 This project illustrates some examples of
 how reactive programming can be used in web development.
