@@ -48,5 +48,5 @@ $ sudo make run.byte (or run.opt)
 
 ## Use it for your own project
 
-**interface.ml** and **subtitle.ml** can be transferred and used for your own project.
+**interface.ml** and **effect.ml** can be transferred and used for your own project.
 You are also welcome to folk this repo and contribute to it.
